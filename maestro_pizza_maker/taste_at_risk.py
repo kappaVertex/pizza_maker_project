@@ -6,23 +6,30 @@
 from maestro_pizza_maker.pizza import Pizza
 from maestro_pizza_maker.pizza_menu import PizzaMenu
 import numpy as np
+import scipy.stats as sp
 
 
-def taste_at_risk_pizza(pizza: Pizza, quantile: float) -> float:
+def taste_at_risk_pizza(pizza: Pizza, quantile: float, normal_dist:bool = False ) -> float:
     # TODO: implement the taste at risk measure for a pizza
     # quantile is the quantile that we want to consider
     # Hint: Similarity between the Taste at Risk and the Value at Risk is not a coincidence or is it?
     # Hint: Use function taste from Pizza class, but be aware that the higher the taste, the better -> the lower the taste, the worse
-    return np.mean(pizza.taste) - np.quantile(pizza.taste, quantile)
+    if normal_dist:
+        tar_pizza =  - sp.norm.ppf(quantile)*np.std(pizza.taste)
+    else:
+        tar_pizza = np.mean(pizza.taste) - np.quantile(pizza.taste, quantile )    
+    return tar_pizza
 
-
-def taste_at_risk_menu(menu: PizzaMenu, quantile: float) -> float:
+def taste_at_risk_menu(menu: PizzaMenu, quantile: float, normal_dist:bool = False) -> float:
     # TODO: implement the taste at risk measure for a menu
     # quantile is the quantile that we want to consider
     # Hint: the taste of the whole menu is the sum of the taste of all pizzas in the menu, or? ;)
-    menu_taste = sum( pizza.taste for pizza in menu.pizzas )    
-    return np.mean(menu_taste) - np.quantile(menu_taste, quantile)
-
+    menu_taste = sum( pizza.taste for pizza in menu.pizzas )   
+    if normal_dist:
+        tar_menu = - sp.norm.ppf(quantile)*np.std(menu_taste)
+    else:
+        tar_menu = np.mean(menu_taste) - np.quantile(menu_taste, quantile)
+    return tar_menu
 
 def conditional_taste_at_risk_pizza(pizza: Pizza, quantile: float) -> float:
     # TODO: implement the conditional taste at risk measure for a pizza
